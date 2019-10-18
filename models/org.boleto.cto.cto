@@ -57,3 +57,8 @@ transaction RegistroBoleto {
   --> Pessoa beneficiario
   --> Pessoa pagador
 }
+
+transaction PagarBoleto {
+  --> Boleto boleto
+  --> Banco ifBancoPag
+}

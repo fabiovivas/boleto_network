@@ -89,14 +89,16 @@ rule R8_BancoPodeApenasCriarBoleto {
 }
 
 
-
-/*rule Default {
-    description: "Allow all participants access to all resources"
-    participant: "ANY"
-    operation: ALL
-    resource: "org.boleto.cto.*"
-    action: ALLOW
-}*/
+rule R9_BancosQuePodemVerBoletosPagos {
+  description: "R9_BancosQuePodemVerBoletosPagos"
+  participant(p): "org.boleto.cto.Banco"
+  operation: READ
+  resource(b): "org.boleto.cto.Boleto"
+  condition: (b.status == "PAGO"
+              && b.ifBeneficiario.getIdentifier() === p.getIdentifier()
+              || b.ifPagadora.getIdentifier() === p.getIdentifier())
+  action: ALLOW
+}
 
 rule SystemACL {
     description:  "System ACL to permit all access"

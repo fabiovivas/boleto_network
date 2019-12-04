@@ -50,6 +50,8 @@ type Regulador struct {
 	Nome        string `json:"nome"`
 }
 
+const STATUS_PAGO = "pago"
+
 /*
  * The Init method is called when the Smart Contract "fabcar" is instantiated by the blockchain network
  * Best practice is to have any Ledger initialization in separate function -- see initLedger()
@@ -151,14 +153,32 @@ func (s *SmartContract) pagarBoleto(APIstub shim.ChaincodeStubInterface, args []
 	}
 
 	//carregar o boleto do ledger
+	boletoSerializado, err := APIstub.GetState(args[0])
+	var objBoleto Boleto
 
 	//verifcar se boleto esta vencido
+	if objBoleto.IsExpired() {
+		err = json.Unmarshal(boletoSerializado, &objBoleto)
 
-	//mudar Status do boleto
+		//mudar Status do boleto
+		objBoleto.Status = STATUS_PAGO
 
-	//adicionar ifPagadora
+		//adicionar ifPagadora
+		bancoSerializado, err2 := APIstub.GetState(args[0])
+		var objBanco Banco
 
-	return shim.Success(nil)
+		err2 = json.Unmarshal(bancoSerializado, &objBanco)
+		if err2 != nil {
+			return shim.Error(err.Error())
+		}
+		objBoleto.IfPagadora = &objBanco
+
+		boletoAsBytes, _ := json.Marshal(objBoleto)
+		APIstub.PutState(args[0], boletoAsBytes)
+		return shim.Success(nil)
+	}
+
+	return shim.Error("deu ruim")
 }
 
 func (s *SmartContract) consultarPessoa(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {

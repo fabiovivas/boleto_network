@@ -92,12 +92,13 @@ func (s *SmartContract) Invoke(APIstub shim.ChaincodeStubInterface) sc.Response 
 
 func (s *SmartContract) registrarBoleto(APIstub shim.ChaincodeStubInterface, args []string) sc.Response {
 
-	if len(args) != 5 {
-		return shim.Error("Incorrect number of arguments. Expecting 5")
+	if len(args) != 4 {
+		return shim.Error("Incorrect number of arguments. Expecting 4")
 	}
 
 	boletoSerializado, err := APIstub.GetState(args[0])
 	var objBoleto Boleto
+
 	err = json.Unmarshal(boletoSerializado, &objBoleto)
 	if err != nil {
 		return shim.Error(err.Error())
@@ -132,13 +133,13 @@ func (s *SmartContract) registrarBoleto(APIstub shim.ChaincodeStubInterface, arg
 	}
 	objBoleto.Pagador = &objPagador
 	//setar o valor do boleto
-	valorSerializado, err4 := APIstub.GetState(args[4])
-	var objValor string
-	err4 = json.Unmarshal(valorSerializado, &objValor)
-	if err4 != nil {
-		return shim.Error(err4.Error())
-	}
-	objBoleto.Valor = objValor
+	//valorSerializado, err4 := APIstub.GetState(args[4])
+	//var objValor string
+	// err4 = json.Unmarshal(valorSerializado, &objValor)
+	// if err4 != nil {
+	// 	return shim.Error(err4.Error())
+	// }
+	objBoleto.Valor = "100"
 
 	boletoAsBytes, _ := json.Marshal(objBoleto)
 	APIstub.PutState(args[0], boletoAsBytes)
